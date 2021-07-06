@@ -8,4 +8,5 @@ djangorestframework-jwt==1.11.0
 orderedset==2.0.3     
 redis==3.3.8     
 psycopg2-binary==2.8.4 
-
+django-rest-swagger
+drf-yasg

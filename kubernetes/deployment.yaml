@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: backend-deployment
+    labels:
+        app: backend
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: backend
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                app: backend
+        spec:
+            containers:
+                - command: ["/bin/sh"]
+                  args:
+                    - -c
+                    - >-
+                        python3 manage.py makemigrations &&
+                        python3 manage.py migrate && 
+                        python3 manage.py runserver 0.0.0.0:8000
+                  env:
+                    - name: SECRET_KEY 
+                      valueFrom:
+                          secretKeyRef:
+                            name: app-secrets
+                            key: SECRET_KEY
+                    - name: DB_NAME
+                      valueFrom:
+                          secretKeyRef:
+                            name: app-secrets
+                            key: DB_NAME
+                    - name: DB_USERNAME
+                      valueFrom:
+                          secretKeyRef:
+                            name: app-secrets
+                            key: DB_USERNAME
+                    - name: DB_PASSWORD
+                      valueFrom:
+                          secretKeyRef:
+                            name: app-secrets
+                            key: DB_PASSWORD
+                    - name: CORS_DMN
+                      valueFrom:
+                          secretKeyRef:
+                            name: app-secrets
+                            key: CORS_DMN
+                    - name: ALLOWED_HOST
+                      valueFrom:
+                          secretKeyRef:
+                            name: app-secrets
+                            key: ALLOWED_HOST
+                  imagePullPolicy: IfNotPresent
+                  image: localhost:32000/backend:latest
+                  name: backend
+                  ports:
+                      - containerPort: 8000
+                  securityContext:
+                      privileged: true
+                  stdin: true
+                  tty: true
+            restartPolicy: Always

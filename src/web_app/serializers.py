@@ -119,23 +119,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class AdminUpdateUserSerializer(serializers.ModelSerializer):
-   class Meta:
+    class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'elo', 'is_banned', 'is_verified_account')
+        fields = ('id', 'first_name', 'last_name', 'elo', 'is_banned', 'is_verified_account', 'is_staff')
 
-    elo = serializers.IntegerField(source='user_info.elo') 
+    elo = serializers.IntegerField(source='user_info.elo')
     is_verified_account = serializers.BooleanField(source='user_info.is_verified_account')
     is_banned = serializers.BooleanField(source='user_info.is_banned')
-
-   def update(self, user, validated_data): 
-        user.first_name = validated_data.get('first_name')
-        user.last_name = validated_data.get('last_name')
-
-        user_info = user.user_info
-        user_info.elo = validated_data.get('elo')
-        user_info.is_banned = validated_data.get('is_banned')
-        user_info.is_verified_account = validated_data.get('is_verified_account')
-
-        user_info.save()
-        user.save()
-        return user
+    is_staff = serializers.BooleanField(source='user_info.is_staff')

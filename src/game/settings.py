@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'rest_framework_swagger',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -82,6 +84,10 @@ TEMPLATES = [
             ],
         },
     },
+]
+
+TEMPLATE_LOADERS = [
+    'django.template.loaders.eggs.Loader',
 ]
 
 WSGI_APPLICATION = 'game.wsgi.application'
@@ -142,6 +148,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema' 
 }
 
 JWT_AUTH = {

@@ -192,34 +192,39 @@ class VerifyAccount(generics.UpdateAPIView):
 class AdminUpdateUser(generics.UpdateAPIView):
     model = User
     serializer_class = srs.AdminUpdateUserSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
     def get_object(self, queryset=None):
-        print("admin usename: ", self.request.user.usename)
-        return self.request.user.user_info
+        return self.request.user
 
     def update(self, request, *args, **kwargs):
-        self.admin_user_info = self.get_object()
+        self.admin_user = self.get_object()
 
-        if not self.admin_user_info.is_staff:
+        if not self.admin_user.is_staff:
             response = {
                 "success": False,
                 "message": "User is not admin"
             }
-        return Response(response, status=status.HTTP_200_OK)
+            return Response(response, status=status.HTTP_200_OK)
         
         user_id = request.data.pop('id', None)
-        print("user id: ", user_id)
         if user_id is None:
             response = {
                 "success": False,
                 "message": "User id missing"
             }
-        return Response(response, status=status.HTTP_200_OK)
+            return Response(response, status=status.HTTP_200_OK)
 
         # Partial update of the data
-        user_to_edit = User.objects.get(id=user_id)
-        print("user to edit id: ", user_to_edit.id)
+        try:
+            user_to_edit = User.objects.get(id=user_id)
+        except:
+            response = {
+                "success": False,
+                "message": "User id does not exist"
+            }
+            return Response(response, status=status.HTTP_200_OK)
+
         serializer = self.serializer_class(user_to_edit, data=request.data, partial=True)
         if not serializer.is_valid():
             response = {
@@ -228,7 +233,17 @@ class AdminUpdateUser(generics.UpdateAPIView):
             }
             return Response(response, status=status.HTTP_200_OK)
             
-        self.perform_update(serializer)
+        user_to_edit.first_name = request.data.get('first_name')
+        user_to_edit.last_name = request.data.get('last_name')
+        user_to_edit.is_staff = request.data.get('is_staff')
+
+        user_info = user_to_edit.user_info
+        user_info.elo = request.data.get('elo')
+        user_info.is_banned = request.data.get('is_banned')
+        user_info.is_verified_account = request.data.get('is_verified_account')
+
+        user_info.save()
+        user_to_edit.save()
         response = {
             "success": True,
         }
