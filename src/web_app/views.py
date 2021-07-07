@@ -27,7 +27,7 @@ class UserLogin(ObtainJSONWebToken, APIView):
 
     def post(self, request, *args, **kwargs):
         """
-        An endpoint for user's Authentication using JWT
+        An endpoint for user's authentication using JWT
         """
         response = super().post(request, *args, **kwargs)
         if response.status_code in [400,401]:
