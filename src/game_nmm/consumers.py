@@ -2,6 +2,7 @@
 
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
+from django.contrib.auth.models import User
 from random import randrange,choices
 
 from game_nmm import consumer_helper as ch
@@ -193,12 +194,14 @@ class LobbyConsumer(WebsocketConsumer):
     def connect(self): 
         self.uid=self.scope['url_route']['kwargs']['id']
         self.username=self.scope['url_route']['kwargs']['username']
+        self.elo = (User.objects.get(id=self.uid)).user_info.elo
+        print("elo: ", self.elo)
         self.room_name="lobby"
         if not rm.lobby_exists():
             lm= ct.Lobby_Match(self)
             lm.start()
 
-        rm.add_to_lobby(self.channel_name,self.uid,self.username) 
+        rm.add_to_lobby(self.channel_name,self.uid,self.username, self.elo) 
             
         async_to_sync(self.channel_layer.group_add)(
             self.room_name,
@@ -207,7 +210,7 @@ class LobbyConsumer(WebsocketConsumer):
         self.accept()
 
     def disconnect(self, close_code):
-        rm.remove_from_lobby(self.channel_name,self.uid,self.username)
+        rm.remove_from_lobby(self.channel_name,self.uid,self.username,self.elo)
         async_to_sync(self.channel_layer.group_discard)(
             self.room_name,
             self.channel_name

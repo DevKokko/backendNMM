@@ -10,15 +10,15 @@ from rest_framework_jwt.views import ObtainJSONWebToken
 from django.contrib.auth.models import User
 
 
-class LeaderboardViews():
+# class LeaderboardViews():
    
-    class NMM_Leaderboard(APIView):
-        permission_classes = (AllowAny,)
+#     class NMM_Leaderboard(APIView):
+#         permission_classes = (AllowAny,)
 
-        def post(self, request, format='json'):
-            emmelo = mds.NMM_ELO_Rating.objects.order_by('-score')
+#         def post(self, request, format='json'):
+#             emmelo = mds.NMM_ELO_Rating.objects.order_by('-score')
 
-            return Response({"success":False}, status=status.HTTP_200_OK)
+#             return Response({"success":False}, status=status.HTTP_200_OK)
 
 
 class UserLogin(ObtainJSONWebToken, APIView):
@@ -27,7 +27,7 @@ class UserLogin(ObtainJSONWebToken, APIView):
 
     def post(self, request, *args, **kwargs):
         """
-        An endpoint for user's Authentication using JWT
+        Endpoint for user sign in, using JWT 
         """
         response = super().post(request, *args, **kwargs)
         if response.status_code in [400,401]:
@@ -46,7 +46,7 @@ class UserCreate(APIView):
           
     def get(self, request): #checks for validity of email and username
         """
-        An endpoint which checks for validity of email and username
+        Endpoint for email/username validity check in sign up
         """
         data={}
         for key in request.GET.keys():
@@ -60,7 +60,7 @@ class UserCreate(APIView):
 
     def post(self, request, format='json'):#creates the user
         """
-        An endpoint which creates the user
+        Endpoint for user sign up. JWT is created
         """
         password1=request.data.pop('password1',None)
 
@@ -79,6 +79,8 @@ class UserCreate(APIView):
                     response.update({"data":{"token":serializer.data['token']}})
                     response['data']['userId']=serializer.data['id']
                     response['data']['username']=serializer.data['username']
+                    response['data']['isAdmin']=False
+                    response['data']['isVerified']=False
 
                     return Response(response, status=status.HTTP_201_CREATED)
 
@@ -92,9 +94,7 @@ class UserCreate(APIView):
 
 
 class ChangeUserInfo(generics.UpdateAPIView):
-    """
-    An endpoint for changing user's info
-    """
+   
     serializer_class = srs.UserUpdate
     model = User
     permission_classes = (IsAuthenticated,)
@@ -103,6 +103,9 @@ class ChangeUserInfo(generics.UpdateAPIView):
         return self.request.user
 
     def update(self, request, *args, **kwargs):
+        """
+        Endpoint for user's own info edit
+        """
         self.object = self.get_object()
         serializer = self.get_serializer(data=request.data)
 
@@ -152,6 +155,9 @@ class GetUserInfo(generics.RetrieveAPIView):
         return self.request.user
 
     def get(self, request, *args, **kwargs):
+        """
+        Endpoint for retrieving user's own info
+        """
         return Response(self.get_serializer(self.get_object()).data, status=status.HTTP_200_OK)
 
 
@@ -163,6 +169,9 @@ class VerifyAccount(generics.UpdateAPIView):
         return self.request.user.user_info
 
     def update(self, request, *args, **kwargs):
+        """
+        Endpoint for account verification
+        """
         self.object = self.get_object()
 
         if self.object.is_verified_account:
@@ -207,6 +216,9 @@ class AdminUpdateUser(generics.UpdateAPIView):
         return self.request.user
 
     def update(self, request, *args, **kwargs):
+        """
+        Endpoint for user info edit by an admin
+        """
         self.admin_user = self.get_object()
 
         if not self.admin_user.is_staff:

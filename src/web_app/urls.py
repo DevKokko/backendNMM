@@ -12,5 +12,5 @@ urlpatterns = [
     path('user', vs.GetUserInfo.as_view(),name='user-info'),
     path('verify_account', vs.VerifyAccount.as_view(),name='verify-account'),
     path('admin/users/update', vs.AdminUpdateUser.as_view(),name='admin-user-update'),
-    path('lboard/nmm', vs.LeaderboardViews.NMM_Leaderboard.as_view(),name='user-lboard'),
+    # path('lboard/nmm', vs.LeaderboardViews.NMM_Leaderboard.as_view(),name='user-lboard'),
 ]

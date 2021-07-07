@@ -119,22 +119,24 @@ def give_permission(room_name):
     perm="permission_"+room_name
     r.set(perm,1)
 
-def add_to_lobby(ch_name,id,username):
+def add_to_lobby(ch_name,id,username,elo):
     r = redis.Redis(host='redis', port=6379, db=0)
     info={
             "channel_name":ch_name,
             "id":id,
-            "username":username
+            "username":username,
+            "elo":elo
         }
     r.lpush("lobby",json.dumps(info)) 
     return
 
-def remove_from_lobby(ch_name,id,username):
+def remove_from_lobby(ch_name,id,username,elo):
     r = redis.Redis(host='redis', port=6379, db=0)
     info={
             "channel_name":ch_name,
             "id":id,
-            "username":username
+            "username":username,
+            "elo":elo
         }
     r.lrem("lobby",1,json.dumps(info)) 
     return
@@ -154,3 +156,12 @@ def lobby_len():
     r = redis.Redis(host='redis', port=6379, db=0)
 
     return r.llen("lobby")
+
+def to_array():
+    r = redis.Redis(host='redis', port=6379, db=0)
+    return r.lrange("lobby",0,r.llen("lobby"))
+
+def remove(element):
+    r = redis.Redis(host='redis', port=6379, db=0)
+    r.lrem("lobby",1,element)
+

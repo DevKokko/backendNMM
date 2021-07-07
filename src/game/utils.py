@@ -6,8 +6,9 @@ def my_jwt_response_handler(token, user=None, request=None):
         "success" : True,
         "data":{
             'token' : token,
-            "userId" :info.data['id'],
-            "username" :info.data['username'],
-            "isAdmin":info.data['is_staff']
+            "userId" : info.data['id'],
+            "username" : info.data['username'],
+            "isAdmin" : info.data['is_staff'],
+            "isVerified" : info.data['is_verified_account']
         }
     }

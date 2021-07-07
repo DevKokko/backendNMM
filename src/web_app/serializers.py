@@ -74,8 +74,7 @@ class UserSerializerWithToken(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ('token','id', 'username', 'email','password', 'first_name',
-        'last_name')
+        fields = ('token','id', 'username', 'email','password', 'first_name', 'last_name')
 
 
 class UserUpdate(serializers.Serializer):
@@ -105,7 +104,9 @@ class GetIDUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id','username', 'is_staff')
+        fields = ('id','username', 'is_staff', 'is_verified_account')
+    
+    is_verified_account = serializers.BooleanField(source='user_info.is_verified_account')
 
 
 class UserSerializer(serializers.ModelSerializer):
